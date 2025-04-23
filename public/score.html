@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            function displayResults() {
+                let wpm = window.localStorage.getItem('wpm')
+                wpm = Math.round(wpm * 10) / 10
+                let accuracy = window.localStorage.getItem('accuracy') * 100
+                accuracy = Math.round(accuracy * 10) / 10
+                let rawWpm = window.localStorage.getItem('rawWpm')
+                rawWpm = Math.round(rawWpm * 10) / 10
+                if (wpm == null || accuracy == null || rawWpm == null) {
+                    console.log("Error: could not get typing test results")
+                    return
+                }
+                let wpm_p = document.getElementById('wpm')
+                let accuracy_p = document.getElementById('accuracy')
+                let raw_wpm_p = document.getElementById('raw_wpm')
+                wpm_p.innerText = `wpm: ${wpm}`
+                accuracy_p.innerText = `accuracy: ${accuracy}%`
+                raw_wpm_p.innerText = `raw wpm: ${rawWpm}`
+            }
+        </script>
+    </head>
+    <body onload="displayResults()">
+        <p id="wpm"></p>
+        <p id="accuracy"></p>
+        <p id="raw_wpm"></p>
+        <a href="/type">play again</a>
+    </body>
+</html>
