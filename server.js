@@ -1,83 +1,85 @@
-var express = require('express')
-var app = express()
-var path = require('path')
-var fs = require('fs')
+// server.js
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://admin:337final337@typer.kfarv9d.mongodb.net/?retryWrites=true&w=majority&appName=Typer";
 
-// client initialization
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
+const MONGO_URI = "mongodb+srv://admin:337final337@typer.kfarv9d.mongodb.net/?retryWrites=true&w=majority&appName=Typer";
+const DB_NAME = "Typer";
+const COLL = "leaderboard";
+const PORT = 3000;
+
+// Load word list
+const WORDS = fs.readFileSync(path.join(__dirname,'public/words.txt'), 'utf8')
+  .split(/\r?\n/)
+  .filter(Boolean);
+
+function pickRandomWords(n) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const idx = Math.floor(Math.random() * WORDS.length);
+    out.push(WORDS[idx]);
   }
-});
-
-// public folder path
-var rootFolder = path.join(__dirname, 'public/')
-
-// the list of all possible words
-var words = getWords()
-
-app.get('/type', (req, res) => {
-    res.sendFile(path.join(rootFolder, 'type.html'))
-})
-
-app.post('/type', express.json(), (req, res) => {
-    res.send(generateWords(req.body.numWords))
-})
-
-app.post('/score', express.json(), (req, res) => {
-    /*
-    if (isValidUser(req.body.username, req.body.password)) {
-        // store users results
-    }*/
-    res.sendFile(path.join(rootFolder, 'score.html'))
-})
-
-// will need to fix this depending on database
-// it will check if a user exists with the given username and password
-async function isValidUser(username, hashedPassword) {
-    if (req.body.username == null || req.body.password == null) {
-        return false;
-    }
-    try {
-        await client.connect()
-    
-        var db = client.db('TypingGameDB')
-        var coll = db.collection('Users')
-        var user = await coll.findOne({'username': username, 'password': hashedPassword})
-        if (user == null || user == undefined) {
-            return false;
-        }
-
-        await client.close()
-    } catch (err) {
-        console.log(err)
-    }
-    return true;
+  return out;
 }
 
-// gets all words from the words.txt file
-function getWords() {
-    try {
-        return String(fs.readFileSync(path.join(rootFolder, 'words.txt')), {'encoding': 'utf8'}).split(/\s+/)
-    } catch (err) {
-        console.log(err)
-    }
-}
+;(async function startServer() {
+  const client = new MongoClient(MONGO_URI, {
+    serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
+  });
 
-// generates a string of random words separated by " "
-function generateWords(num_words) {
-    let result = []
-    for(let i = 0; i < num_words; i++) {
-        let randIndex = Math.floor(Math.random() * words.length)
-        result.push(words[randIndex])
-    }
-    return result.join(" ")
-}
+  try {
+    await client.connect();
+    console.log('✅ MongoDB connected');
+    const db = client.db(DB_NAME);
+    const scores = db.collection(COLL);
 
-app.listen(3000, function () {
-    console.log('Server is running on http://localhost:3000')
-})
+    const app = express();
+    app.use(express.json());
+    app.use(express.static(path.join(__dirname, 'public')));
+
+    // Fetch random words
+    app.post('/type', (req, res) => {
+      const { numWords } = req.body;
+      if (typeof numWords !== 'number' || numWords < 1) {
+        return res.status(400).send('Invalid numWords');
+      }
+      const arr = pickRandomWords(numWords);
+      res.send(arr.join(' '));
+    });
+
+    // Save a new score
+    app.post('/score', async (req, res) => {
+      const { username = 'Anonymous', wpm, accuracy, numWords } = req.body;
+      if (typeof wpm !== 'number' || typeof numWords !== 'number') {
+        return res.status(400).send('Invalid WPM or numWords');
+      }
+      await scores.insertOne({ username, wpm, accuracy, numWords, createdAt: new Date() });
+      res.sendFile(path.join(__dirname, 'public', 'score.html'));
+    });
+
+    // Fetch leaderboard by numWords
+    app.get('/api/leaderboard', async (req, res) => {
+      const numWords = Number(req.query.numWords);
+      const filter = isNaN(numWords) ? {} : { numWords: numWords };
+      const top10 = await scores.find(filter)
+        .sort({ wpm: -1 })
+        .limit(10)
+        .toArray();
+      res.json(top10);
+    });
+
+    // Routes
+    app.get(['/', '/type'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'type.html')));
+    app.get('/score', (req, res) => res.sendFile(path.join(__dirname, 'public', 'score.html')));
+    app.get('/leaderboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'leaderboard.html')));
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server listening at http://localhost:${PORT}`);
+    });
+
+  } catch (err) {
+    console.error('❌ Fatal error starting server:', err);
+    process.exit(1);
+  }
+})();
