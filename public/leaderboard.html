@@ -1,13 +1,10 @@
 <!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
 <html>
 <head>
   <title>Leaderboard</title>
+  <link rel="stylesheet" href="style1.css">
   <style>
-    body { 
-      font-family: sans-serif; 
-      max-width: 800px; 
-      margin: 2rem auto; 
-    }
     select { 
       margin-bottom: 1rem; 
       padding: 0.5rem; 
@@ -46,164 +43,181 @@
       100% { background-color: #ffeaa7; }
     }
   </style>
+  <script>
+        function displayMenu() {
+      let menu = document.getElementById('menu');
+      if (menu.style.display === 'block') {
+        menu.style.display = 'none';
+      } else {
+        menu.style.display = 'block';
+      }
+    }
+  </script>
 </head>
 <body>
-  <h1>🏆 Leaderboard</h1>
+  <div id="content">
+    <div id="banner">
+      <h1>Typing Game</h1>
+      <input type="button" id="menu_btn" onclick="displayMenu()" value="Menu">
+    </div>
+    <div id="menu">
+      <div class="link" onclick="window.location.href='/type'">Play</div>
+      <div class="link" onclick="window.location.href='/leaderboard'">Leaderboard</div>
+    </div>
+    <h1>🏆 Leaderboard</h1>
 
-  <label for="modeSelector">Select Mode:</label>
-  <select id="modeSelector">
-    <option value="10">10 Words</option>
-    <option value="25" selected>25 Words</option>
-    <option value="50">50 Words</option>
-    <option value="100">100 Words</option>
-  </select>
+    <label for="modeSelector">Select Mode:</label>
+    <select id="modeSelector">
+      <option value="10">10 Words</option>
+      <option value="25" selected>25 Words</option>
+      <option value="50">50 Words</option>
+      <option value="100">100 Words</option>
+    </select>
+  
+    <p id="modeLabel" style="font-style: italic; margin-top: 0.5rem;">(25 Words Leaderboard)</p>
+  
+    <table>
+      <thead>
+        <tr>
+          <th data-key="rank">Rank</th>
+          <th data-key="username">Name</th>
+          <th data-key="wpm">WPM</th>
+          <th data-key="accuracy">Accuracy</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody"></tbody>
+    </table>
+  </div>
+<script>
+  let leaderboardData = [];
+  let sortKey = 'wpm';
+  let sortAsc = false;
+  let selectedNumWords = 25; // default
 
-  <p id="modeLabel" style="font-style: italic; margin-top: 0.5rem;">(25 Words Leaderboard)</p>
+  async function fetchData() {
+    const res = await fetch(`/api/leaderboard?numWords=${selectedNumWords}`);
+    const data = await res.json();
+    leaderboardData = data.map((row, i) => ({ ...row, _initialIndex: i }));
+    renderTable();
+  }
 
-  <table>
-    <thead>
-      <tr>
-        <th data-key="rank">Rank</th>
-        <th data-key="username">Name</th>
-        <th data-key="wpm">WPM</th>
-        <th data-key="accuracy">Accuracy</th>
-      </tr>
-    </thead>
-    <tbody id="leaderboardBody"></tbody>
-  </table>
+  function renderTable() {
+    let displayData;
 
-  <p><a href="/type">Back to Game</a></p>
-
-  <script>
-    let leaderboardData = [];
-    let sortKey = 'wpm';
-    let sortAsc = false;
-    let selectedNumWords = 25; // default
-
-    async function fetchData() {
-      const res = await fetch(`/api/leaderboard?numWords=${selectedNumWords}`);
-      const data = await res.json();
-      leaderboardData = data.map((row, i) => ({ ...row, _initialIndex: i }));
-      renderTable();
+    if (sortKey === 'rank') {
+      displayData = [...leaderboardData].sort((a, b) =>
+        sortAsc
+          ? a._initialIndex - b._initialIndex
+          : b._initialIndex - a._initialIndex
+      );
+    } else {
+      displayData = [...leaderboardData].sort((a, b) => {
+        let aVal, bVal;
+        if (sortKey === 'accuracy') {
+          aVal = (a.accuracy ?? 0);
+          bVal = (b.accuracy ?? 0);
+          aVal = (aVal <= 1) ? aVal * 100 : aVal;
+          bVal = (bVal <= 1) ? bVal * 100 : bVal;
+        } else {
+          aVal = (a[sortKey] ?? 0);
+          bVal = (b[sortKey] ?? 0);
+        }
+        return (aVal < bVal ? -1 : aVal > bVal ? 1 : 0) * (sortAsc ? 1 : -1);
+      });
     }
 
-    function renderTable() {
-      let displayData;
+    const tbody = document.getElementById('leaderboardBody');
+    tbody.classList.remove('fade'); // reset animation
+    void tbody.offsetWidth; // force reflow for animation
+    tbody.innerHTML = '';
 
-      if (sortKey === 'rank') {
-        displayData = [...leaderboardData].sort((a, b) =>
-          sortAsc
-            ? a._initialIndex - b._initialIndex
-            : b._initialIndex - a._initialIndex
-        );
+    displayData.forEach((row, i) => {
+      const rank = i + 1;
+      const wpmDisplay = typeof row.wpm === 'number'
+        ? row.wpm.toFixed(1)
+        : '–';
+      let accDisplay;
+      if (typeof row.accuracy === 'number') {
+        const rawAcc = row.accuracy <= 1
+          ? row.accuracy * 100
+          : row.accuracy;
+        accDisplay = (rawAcc % 1 === 0
+          ? rawAcc.toFixed(0)
+          : rawAcc.toFixed(1)
+        ) + '%';
       } else {
-        displayData = [...leaderboardData].sort((a, b) => {
-          let aVal, bVal;
-          if (sortKey === 'accuracy') {
-            aVal = (a.accuracy ?? 0);
-            bVal = (b.accuracy ?? 0);
-            aVal = (aVal <= 1) ? aVal * 100 : aVal;
-            bVal = (bVal <= 1) ? bVal * 100 : bVal;
-          } else {
-            aVal = (a[sortKey] ?? 0);
-            bVal = (b[sortKey] ?? 0);
-          }
-          return (aVal < bVal ? -1 : aVal > bVal ? 1 : 0) * (sortAsc ? 1 : -1);
-        });
+        accDisplay = '–';
       }
 
-      const tbody = document.getElementById('leaderboardBody');
-      tbody.classList.remove('fade'); // reset animation
-      void tbody.offsetWidth; // force reflow for animation
-      tbody.innerHTML = '';
+      const tr = document.createElement('tr');
 
-      displayData.forEach((row, i) => {
-        const rank = i + 1;
-        const wpmDisplay = typeof row.wpm === 'number'
-          ? row.wpm.toFixed(1)
-          : '–';
-        let accDisplay;
-        if (typeof row.accuracy === 'number') {
-          const rawAcc = row.accuracy <= 1
-            ? row.accuracy * 100
-            : row.accuracy;
-          accDisplay = (rawAcc % 1 === 0
-            ? rawAcc.toFixed(0)
-            : rawAcc.toFixed(1)
-          ) + '%';
+      // 🥇 Medals for top 3
+      let rankDisplay = rank;
+      if (rank === 1) rankDisplay = '🥇';
+      else if (rank === 2) rankDisplay = '🥈';
+      else if (rank === 3) rankDisplay = '🥉';
+
+      tr.innerHTML = `
+        <td>${rankDisplay}</td>
+        <td>${row.username}</td>
+        <td>${wpmDisplay}</td>
+        <td>${accDisplay}</td>
+      `;
+
+      // ✨ Highlight top scorer
+      if (rank === 1 && sortKey !== 'rank') {
+        tr.classList.add('highlight');
+      }
+
+      tbody.appendChild(tr);
+    });
+
+    tbody.classList.add('fade'); // trigger fade animation
+
+    document.querySelectorAll('th').forEach(th => {
+      th.classList.remove('sorted-asc', 'sorted-desc');
+      if (th.dataset.key === sortKey) {
+        th.classList.add(sortAsc ? 'sorted-asc' : 'sorted-desc');
+      }
+    });
+  }
+
+  function setupSorting() {
+    document.querySelectorAll('th').forEach(th => {
+      const key = th.dataset.key;
+      if (!key) return;
+      th.addEventListener('click', () => {
+        if (sortKey === key) {
+          sortAsc = !sortAsc;
         } else {
-          accDisplay = '–';
+          sortKey = key;
+          sortAsc = (key === 'wpm' || key === 'accuracy') ? false : true;
         }
-
-        const tr = document.createElement('tr');
-
-        // 🥇 Medals for top 3
-        let rankDisplay = rank;
-        if (rank === 1) rankDisplay = '🥇';
-        else if (rank === 2) rankDisplay = '🥈';
-        else if (rank === 3) rankDisplay = '🥉';
-
-        tr.innerHTML = `
-          <td>${rankDisplay}</td>
-          <td>${row.username}</td>
-          <td>${wpmDisplay}</td>
-          <td>${accDisplay}</td>
-        `;
-
-        // ✨ Highlight top scorer
-        if (rank === 1 && sortKey !== 'rank') {
-          tr.classList.add('highlight');
-        }
-
-        tbody.appendChild(tr);
+        renderTable();
       });
+    });
+  }
 
-      tbody.classList.add('fade'); // trigger fade animation
-
-      document.querySelectorAll('th').forEach(th => {
-        th.classList.remove('sorted-asc', 'sorted-desc');
-        if (th.dataset.key === sortKey) {
-          th.classList.add(sortAsc ? 'sorted-asc' : 'sorted-desc');
-        }
-      });
-    }
-
-    function setupSorting() {
-      document.querySelectorAll('th').forEach(th => {
-        const key = th.dataset.key;
-        if (!key) return;
-        th.addEventListener('click', () => {
-          if (sortKey === key) {
-            sortAsc = !sortAsc;
-          } else {
-            sortKey = key;
-            sortAsc = (key === 'wpm' || key === 'accuracy') ? false : true;
-          }
-          renderTable();
-        });
-      });
-    }
-
-    function setupModeSelector() {
-      const modeSelector = document.getElementById('modeSelector');
-      modeSelector.addEventListener('change', (e) => {
-        selectedNumWords = Number(e.target.value);
-        updateModeLabel();
-        fetchData();
-      });
-    }
-
-    function updateModeLabel() {
-      const label = document.getElementById('modeLabel');
-      label.innerText = `(${selectedNumWords} Words Leaderboard)`;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      setupSorting();
-      setupModeSelector();
+  function setupModeSelector() {
+    const modeSelector = document.getElementById('modeSelector');
+    modeSelector.addEventListener('change', (e) => {
+      selectedNumWords = Number(e.target.value);
       updateModeLabel();
       fetchData();
     });
-  </script>
+  }
+
+  function updateModeLabel() {
+    const label = document.getElementById('modeLabel');
+    label.innerText = `(${selectedNumWords} Words Leaderboard)`;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setupSorting();
+    setupModeSelector();
+    updateModeLabel();
+    fetchData();
+  });
+</script>
 </body>
 </html>
