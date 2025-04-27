@@ -2,33 +2,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
 <html>
 <head>
-  <link rel="stylesheet" href="style1.css">
+  <link id="css" rel="stylesheet" href="style1.css">
   <title>Your Score</title>
-  <script>
-    function displayResults() {
-      let wpm      = window.localStorage.getItem('wpm');
-      let accuracy = window.localStorage.getItem('accuracy') * 100;
-      let rawWpm   = window.localStorage.getItem('rawWpm');
-      wpm      = Math.round(wpm * 10) / 10;
-      accuracy = Math.round(accuracy * 10) / 10;
-      rawWpm   = Math.round(rawWpm * 10) / 10;
-      if (!wpm || !accuracy || !rawWpm) {
-        console.error("Error: missing results");
-        return;
-      }
-      document.getElementById('wpm').innerText      = `WPM: ${wpm}`;
-      document.getElementById('accuracy').innerText = `Accuracy: ${accuracy}%`;
-      document.getElementById('raw_wpm').innerText  = `Raw WPM: ${rawWpm}`;
-    }
-    function displayMenu() {
-      let menu = document.getElementById('menu');
-      if (menu.style.display === 'block') {
-        menu.style.display = 'none';
-      } else {
-        menu.style.display = 'block';
-      }
-    }
-  </script>
+  <script src="common.js"></script>
 </head>
 <body onload="displayResults()">
   <div id="content">
@@ -39,12 +15,12 @@
     <div id="menu">
       <div class="link" onclick="window.location.href='/type'">Play</div>
       <div class="link" onclick="window.location.href='/leaderboard'">Leaderboard</div>
+      <div class="link" onclick="changeCSS()">Toggle Dark Mode</div>
     </div>
     <h1>Your Results</h1>
     <p id="wpm"></p>
     <p id="accuracy"></p>
     <p id="raw_wpm"></p>
-    <!--<p><a href="/type">Play Again</a> · <a href="/leaderboard">See Leaderboard</a></p>-->
   </div>
 </body>
 </html>
