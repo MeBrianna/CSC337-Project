@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const crypto = require('crypto')
 
 const MONGO_URI = "mongodb+srv://admin:337final337@typer.kfarv9d.mongodb.net/?retryWrites=true&w=majority&appName=Typer";
 const DB_NAME = "Typer";
@@ -23,6 +24,13 @@ function pickRandomWords(n) {
   return out;
 }
 
+async function checkLogin(usersCollection, username, password) {
+  var hashedPass = crypto.createHash('sha256').update(password).digest('hex')
+  var user = await usersCollection.findOne({ username, password: hashedPass })
+  return !!user
+}
+
+
 ;(async function startServer() {
   const client = new MongoClient(MONGO_URI, {
     serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
@@ -33,6 +41,9 @@ function pickRandomWords(n) {
     console.log('✅ MongoDB connected');
     const db = client.db(DB_NAME);
     const scores = db.collection(COLL);
+
+    const usersDB = client.db('Users')
+    const userList = usersDB.collection('userList')
 
     const app = express();
     app.use(express.json());
@@ -67,10 +78,53 @@ function pickRandomWords(n) {
       res.json(top10);
     });
 
+    // Login
+    app.post('/login', express.urlencoded({'extended':true}), async function(req,res){
+      var {user, pass} = req.body
+
+      if(!user || !pass){
+        return res.status(400).send('Missing username or password')
+      }
+
+      var hashedPass = crypto.createHash('sha256').update(pass).digest('hex')
+
+
+      const userFound = await userList.findOne({ user: user, pass: hashedPass });
+
+      if(!userFound){
+        return res.status(401).send('Invalid username or password')
+      }
+    
+      res.send('Login Successful')
+    })
+
+    //Register 
+    app.post('/register',express.urlencoded({'extended':true}), async function(req, res){
+      var {user, pass} = req.body
+    
+      if(!user || !pass){
+        return res.status(400).send('Missing username or password')
+      }
+    
+      var existingUser = await userList.findOne({ user });
+      if (existingUser) {
+        return res.status(409).send('Username already taken');
+      }
+    
+      // Hash the password during registration
+      var hashedPass = crypto.createHash('sha256').update(pass).digest('hex');
+      await userList.insertOne({ user, pass: hashedPass });
+      res.send('Registration successful!');
+    })
+
     // Routes
     app.get(['/', '/type'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'type.html')));
     app.get('/score', (req, res) => res.sendFile(path.join(__dirname, 'public', 'score.html')));
     app.get('/leaderboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'leaderboard.html')));
+    app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+    app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
+
+
 
     app.listen(PORT, () => {
       console.log(`🚀 Server listening at http://localhost:${PORT}`);
@@ -80,4 +134,6 @@ function pickRandomWords(n) {
     console.error('❌ Fatal error starting server:', err);
     process.exit(1);
   }
+
+ 
 })();

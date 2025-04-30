@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link id="css" rel="stylesheet" href="style1.css">
+    <title>Login</title>
+    <script src="common.js"></script>
+
+</head>
+<body>
+    <div id="content">
+      <div id="banner">
+        <h1>Typing Game</h1>
+        <input type="button" id="menu_btn" onclick="displayMenu()" value="Menu">
+      </div>
+      <div id="menu">
+        <div class="link" onclick="window.location.href='/type'">Play</div>
+        <div class="link" onclick="window.location.href='/leaderboard'">Leaderboard</div>
+        <div class="link" onclick="window.location.href='/login'">Login</div>
+        <div class="link" onclick="window.location.href='/Register'">Register</div>
+        <div class="link" onclick="changeCSS()">Toggle Dark Mode</div>
+      </div>
+      <h1>Login</h1>
+
+      <form method="POST" action="/login">
+            Username: <input type="text", name="user" id="user">
+            <br>
+            <br>
+            Password: <input type="text", name="pass" id="pass">
+            <br>
+            <br>
+            <input type="submit">
+      </form>
+</body>
+</html>
