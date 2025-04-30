@@ -40,7 +40,8 @@ function renderTable() {
   void tbody.offsetWidth; // force reflow for animation
   tbody.innerHTML = '';
 
-  displayData.forEach((row, i) => {
+  const maxRows = 10;
+  displayData.slice(0, maxRows).forEach((row, i) => {
     const rank = i + 1;
     const wpmDisplay = typeof row.wpm === 'number'
       ? row.wpm.toFixed(1)

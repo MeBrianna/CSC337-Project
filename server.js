@@ -63,8 +63,6 @@ function pickRandomWords(n) {
       const numWords = Number(req.query.numWords);
       const filter = isNaN(numWords) ? {} : { numWords: numWords };
       const top10 = await scores.find(filter)
-        .sort({ wpm: -1 })
-        .limit(10)
         .toArray();
       res.json(top10);
     });
