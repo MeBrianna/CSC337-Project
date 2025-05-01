@@ -89,13 +89,16 @@ async function checkLogin(usersCollection, username, password) {
       var hashedPass = crypto.createHash('sha256').update(pass).digest('hex')
 
 
-      const userFound = await userList.findOne({ user: user, pass: hashedPass });
+      const userFound = await userList.findOne({ user: user, pass: hashedPass })
 
       if (!userFound) {
         return res.status(401).send('Invalid username or password')
       }
 
-      res.send('Login Successful')
+      res.redirect(`/settings?user=${user}`);
+
+        
+        
     })
 
     //Register 
@@ -114,7 +117,10 @@ async function checkLogin(usersCollection, username, password) {
       // Hash the password during registration
       var hashedPass = crypto.createHash('sha256').update(pass).digest('hex');
       await userList.insertOne({ user, pass: hashedPass, theme: 'style1.css' });
-      res.send('Registration successful!');
+
+      res.redirect(`/settings?user=${user}`);
+        
+        
     })
 
     app.get('/gettheme', async function (req, res) {
