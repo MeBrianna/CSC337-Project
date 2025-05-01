@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
+<html>
+<head>
+    <link rel="icon" type="image/x-icon" href="keyboard_icon.ico">
+    <link id="css" rel="stylesheet" href="style0.css" type="text/css">
+    <title>Settings</title>
+    <script src="common.js"></script>
+</head>
+<body onload="getTheme(); setLgnAs()">
+    <div class="loader"></div>
+    <div id="content">
+      <div id="banner">
+        <h1>Typing Game</h1>
+        <div id="menu_btn" onclick="displayMenu()">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+      </div>
+      <div id="menu">
+        <div class="link" onclick="window.location.href='/type'">Play</div>
+        <div class="link" onclick="window.location.href='/leaderboard'">Leaderboard</div>
+        <div class="link" onclick="window.location.href='/login'">Login</div>
+        <div class="link" onclick="window.location.href='/Register'">Register</div>
+        <div class="link" onclick="window.location.href='/settings'">Settings</div>
+      </div>
+      <h1>Settings</h1>
+      <p id="lgnAs"></p>
+      <div id="themeSelection">
+        <label for="selection">Select Theme:</label>
+        <select id="selection" onchange="previewTheme()">
+          <option value="style1.css">Light</option>
+          <option value="style2.css">Dark</option>
+        </select>
+        <input type="button" value="Save" onclick="saveTheme()">
+      </div>
+      <div id="logoutButton">
+        <input type="button" value="Logout" onclick="logout()">
+      </div>
+    </div>
+</body>
+</html>

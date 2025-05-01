@@ -36,6 +36,15 @@ body {
     cursor: pointer;
     border: none;
     color: white;
+    padding-top: 0.6rem;
+}
+
+.bar {
+    width: 2.5rem;
+    height: 0.4rem;
+    background-color: white;
+    margin: 0.5rem;
+    border-radius: 0.2rem;
 }
 
 #menu_btn:hover {

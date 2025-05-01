@@ -1,34 +1,44 @@
 <!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
 <html>
+
 <head>
-    <link id="css" rel="stylesheet" href="style1.css">
-    <title>Register</title>
-    <script src="common.js"></script>
-
+  <link rel="icon" type="image/x-icon" href="keyboard_icon.ico">
+  <link id="css" rel="stylesheet" href="style0.css" type="text/css">
+  <title>Register</title>
+  <script src="common.js"></script>
 </head>
-<body>
-    <div id="content">
-      <div id="banner">
-        <h1>Typing Game</h1>
-        <input type="button" id="menu_btn" onclick="displayMenu()" value="Menu">
-      </div>
-      <div id="menu">
-        <div class="link" onclick="window.location.href='/type'">Play</div>
-        <div class="link" onclick="window.location.href='/leaderboard'">Leaderboard</div>
-        <div class="link" onclick="window.location.href='/login'">Login</div>
-        <div class="link" onclick="window.location.href='/Register'">Register</div>
-        <div class="link" onclick="changeCSS()">Toggle Dark Mode</div>
-      </div>
-      <h1>Register</h1>
 
-      <form method="POST" action="/register">
-            Username: <input type="text", name="user" id="user">
-            <br>
-            <br>
-            Password: <input type="text", name="pass" id="pass">
-            <br>
-            <br>
-            <input type="submit">
-      </form>
+<body onload="getTheme()">
+  <div class="loader"></div>
+  <div id="content">
+    <div id="banner">
+      <h1>Typing Game</h1>
+      <div id="menu_btn" onclick="displayMenu()">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+    </div>
+    <div id="menu">
+      <div class="link" onclick="window.location.href='/type'">Play</div>
+      <div class="link" onclick="window.location.href='/leaderboard'">Leaderboard</div>
+      <div class="link" onclick="window.location.href='/login'">Login</div>
+      <div class="link" onclick="window.location.href='/Register'">Register</div>
+      <div class="link" onclick="window.location.href='/settings'">Settings</div>
+    </div>
+    <h1>Register</h1>
+
+    <form method="POST" action="/register">
+      Username: <input type="text" , name="user" id="user">
+      <br>
+      <br>
+      Password: <input type="text" , name="pass" id="pass">
+      <br>
+      <br>
+      <input type="submit">
+    </form>
+  </div>
 </body>
+
 </html>

@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
 <html>
+
 <head>
   <title>Leaderboard</title>
-  <link id="css" rel="stylesheet" href="style1.css">
+  <link rel="icon" type="image/x-icon" href="keyboard_icon.ico">
+  <link id="css" rel="stylesheet" href="style0.css" type="text/css">
   <script src="common.js"></script>
 </head>
-<body>
+
+<body onload="getTheme()">
+  <div class="loader"></div>
   <div id="content">
     <div id="banner">
       <h1>Typing Game</h1>
-      <input type="button" id="menu_btn" onclick="displayMenu()" value="Menu">
+      <div id="menu_btn" onclick="displayMenu()">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
     </div>
     <div id="menu">
       <div class="link" onclick="window.location.href='/type'">Play</div>
       <div class="link" onclick="window.location.href='/leaderboard'">Leaderboard</div>
       <div class="link" onclick="window.location.href='/login'">Login</div>
       <div class="link" onclick="window.location.href='/Register'">Register</div>
-      <div class="link" onclick="changeCSS()">Toggle Dark Mode</div>
+      <div class="link" onclick="window.location.href='/settings'">Settings</div>
     </div>
     <h1>🏆 Leaderboard</h1>
 
@@ -28,9 +36,9 @@
       <option value="50">50 Words</option>
       <option value="100">100 Words</option>
     </select>
-  
+
     <p id="modeLabel" style="font-style: italic; margin-top: 0.5rem;">(25 Words Leaderboard)</p>
-  
+
     <table>
       <thead>
         <tr>
@@ -43,6 +51,7 @@
       <tbody id="leaderboardBody"></tbody>
     </table>
   </div>
-<script src="leaderboard_script.js"></script>
+  <script src="leaderboard_script.js"></script>
 </body>
+
 </html>

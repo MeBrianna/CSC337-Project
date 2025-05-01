@@ -11,7 +11,7 @@ const COLL = "leaderboard";
 const PORT = 3000;
 
 // Load word list
-const WORDS = fs.readFileSync(path.join(__dirname,'public/words.txt'), 'utf8')
+const WORDS = fs.readFileSync(path.join(__dirname, 'public/words.txt'), 'utf8')
   .split(/\r?\n/)
   .filter(Boolean);
 
@@ -31,7 +31,7 @@ async function checkLogin(usersCollection, username, password) {
 }
 
 
-;(async function startServer() {
+; (async function startServer() {
   const client = new MongoClient(MONGO_URI, {
     serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
   });
@@ -79,10 +79,10 @@ async function checkLogin(usersCollection, username, password) {
     });
 
     // Login
-    app.post('/login', express.urlencoded({'extended':true}), async function(req,res){
-      var {user, pass} = req.body
+    app.post('/login', express.urlencoded({ 'extended': true }), async function (req, res) {
+      var { user, pass } = req.body
 
-      if(!user || !pass){
+      if (!user || !pass) {
         return res.status(400).send('Missing username or password')
       }
 
@@ -91,30 +91,51 @@ async function checkLogin(usersCollection, username, password) {
 
       const userFound = await userList.findOne({ user: user, pass: hashedPass });
 
-      if(!userFound){
+      if (!userFound) {
         return res.status(401).send('Invalid username or password')
       }
-    
+
       res.send('Login Successful')
     })
 
     //Register 
-    app.post('/register',express.urlencoded({'extended':true}), async function(req, res){
-      var {user, pass} = req.body
-    
-      if(!user || !pass){
+    app.post('/register', express.urlencoded({ 'extended': true }), async function (req, res) {
+      var { user, pass } = req.body
+
+      if (!user || !pass) {
         return res.status(400).send('Missing username or password')
       }
-    
+
       var existingUser = await userList.findOne({ user });
       if (existingUser) {
         return res.status(409).send('Username already taken');
       }
-    
+
       // Hash the password during registration
       var hashedPass = crypto.createHash('sha256').update(pass).digest('hex');
-      await userList.insertOne({ user, pass: hashedPass });
+      await userList.insertOne({ user, pass: hashedPass, theme: 'style1.css' });
       res.send('Registration successful!');
+    })
+
+    app.get('/gettheme', async function (req, res) {
+      var user = req.query.user
+      if (user === null) { // user wll be null if not logged in
+        return res.send('style1.css')
+      }
+      const userFound = await userList.findOne({ user: user })
+      if (!userFound) {
+        return res.send('style1.css')
+      }
+      res.send(userFound.theme)
+    })
+
+    app.get('/settheme', async function (req, res) {
+      var user = req.query.user
+      var theme = req.query.theme
+      const userFound = await userList.findOne({ user: user })
+      if (userFound) {
+        await userList.updateOne({ user: user }, { $set: { theme: theme } })
+      }
     })
 
     // Routes
@@ -123,6 +144,7 @@ async function checkLogin(usersCollection, username, password) {
     app.get('/leaderboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'leaderboard.html')));
     app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
     app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
+    app.get('/settings', (req, res) => res.sendFile(path.join(__dirname, 'public', 'settings.html')));
 
 
 
@@ -135,5 +157,5 @@ async function checkLogin(usersCollection, username, password) {
     process.exit(1);
   }
 
- 
+
 })();
