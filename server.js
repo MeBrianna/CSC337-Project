@@ -61,7 +61,7 @@ async function checkLogin(usersCollection, username, password) {
 
     // Save a new score
     app.post('/score', async (req, res) => {
-      const { username = 'Anonymous', wpm, accuracy, numWords } = req.body;
+      const { username, wpm, accuracy, numWords } = req.body;
       if (typeof wpm !== 'number' || typeof numWords !== 'number') {
         return res.status(400).send('Invalid WPM or numWords');
       }

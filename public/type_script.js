@@ -37,11 +37,10 @@ function setUpEvent() {
       window.localStorage.setItem('rawWpm', rawWpm);
 
       let data = { 'wpm': wpm, 'accuracy': accuracy, 'numWords': numWords };
-      let username = window.localStorage.getItem('username');
+      let username = window.localStorage.getItem('user');
       let password = window.localStorage.getItem('password')
-      if (username != null && password != null) {
+      if (username != null) {
         data['username'] = username
-        data['password'] = password
       }
 
       fetch('/score', {
