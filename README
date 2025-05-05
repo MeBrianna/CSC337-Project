@@ -1,1 +1,5 @@
-
+To run this project have node js installed somewhere on the machine, since the mongo database is cloud based there is no need to locally host it.
+1. open the terminal in the same directory as the server.js file.
+2. In the terminal type "node server"
+3. In your web browser go to http://localhost:3000/
+4. When you're finished use ctrl-c in the terminal to close the server.
