@@ -41,16 +41,6 @@
     </div>
 
     <script>
-      function logout(){
-        window.localStorage.setItem('user', null)
-
-        alert('Log Out Successful')
-
-        location.reload()
-
-
-      }
-
       function setUserFromUrl() {
         var urlParams = new URLSearchParams(window.location.search);
         var user = urlParams.get('user');  
@@ -59,10 +49,7 @@
           localStorage.setItem('user', user);  
         }
       }
-
       setUserFromUrl();
-
-
     </script>
 </body>
 </html>
