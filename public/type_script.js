@@ -97,6 +97,8 @@ function contains(wordIndex, charIndex) {
 function getWords(n) {
   numWords = n; // track selection
   wrongLetters = [];
+  timing = false
+  document.getElementById('text').value = ""
   fetch('/type', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
