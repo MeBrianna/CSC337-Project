@@ -36,12 +36,9 @@ function setUpEvent() {
       window.localStorage.setItem('accuracy', accuracy);
       window.localStorage.setItem('rawWpm', rawWpm);
 
-      let data = { 'wpm': wpm, 'accuracy': accuracy, 'numWords': numWords };
-      let username = window.localStorage.getItem('user');
-      let password = window.localStorage.getItem('password')
-      if (username != null) {
-        data['username'] = username
-      }
+      const username = localStorage.getItem('user') || "Guest";
+      let data = { username, wpm, accuracy, numWords };
+
 
       fetch('/score', {
         method: 'POST',

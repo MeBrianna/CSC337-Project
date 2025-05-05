@@ -36,8 +36,8 @@ function renderTable() {
   }
 
   const tbody = document.getElementById('leaderboardBody');
-  tbody.classList.remove('fade'); // reset animation
-  void tbody.offsetWidth; // force reflow for animation
+  tbody.classList.remove('fade');
+  void tbody.offsetWidth;
   tbody.innerHTML = '';
 
   const maxRows = 10;
